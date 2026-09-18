@@ -1,0 +1,15 @@
+{
+  "close_time_iso": "2026-09-18T12:00:00Z",
+  "ctid": "C00003EA00000001",
+  "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "ledger_hash": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "ledger_index": 1002,
+  "meta": {
+    "AffectedNodes": [],
+    "TransactionIndex": 0,
+    "TransactionResult": "tesSUCCESS",
+    "delivered_amount": "1000000"
+  },
+  "tx_json": {},
+  "validated": true
+}

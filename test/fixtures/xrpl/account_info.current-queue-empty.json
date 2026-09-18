@@ -1,0 +1,18 @@
+{
+  "account_data": {
+    "Account": "rSOURCE",
+    "Balance": "100000000",
+    "Flags": 0,
+    "LedgerEntryType": "AccountRoot",
+    "OwnerCount": 0,
+    "Sequence": 42
+  },
+  "account_flags": {
+    "disableMasterKey": false
+  },
+  "ledger_current_index": 1001,
+  "queue_data": {
+    "txn_count": 0
+  },
+  "validated": false
+}

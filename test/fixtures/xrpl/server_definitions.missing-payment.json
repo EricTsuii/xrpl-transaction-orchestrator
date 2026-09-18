@@ -1,0 +1,17 @@
+{
+  "TRANSACTION_FORMATS": {
+    "TrustSet": [
+      {
+        "name": "LimitAmount",
+        "optionality": 1
+      }
+    ],
+    "AccountSet": [
+      {
+        "name": "SetFlag",
+        "optionality": 1
+      }
+    ]
+  },
+  "hash": "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+}

@@ -1,0 +1,12 @@
+{
+  "applied": false,
+  "engine_result": "tecUNFUNDED_PAYMENT",
+  "engine_result_code": 104,
+  "engine_result_message": "Insufficient XRP balance to send.",
+  "ledger_index": 1001,
+  "meta": {
+    "TransactionIndex": 0,
+    "TransactionResult": "tecUNFUNDED_PAYMENT"
+  },
+  "tx_json": {}
+}

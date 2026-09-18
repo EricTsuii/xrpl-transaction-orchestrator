@@ -1,0 +1,12 @@
+{
+  "applied": false,
+  "engine_result": "tesSUCCESS",
+  "engine_result_code": 0,
+  "engine_result_message": "The simulated transaction would have been applied.",
+  "ledger_index": 1001,
+  "meta": {
+    "TransactionIndex": 0,
+    "TransactionResult": "tesSUCCESS"
+  },
+  "tx_json": {}
+}

@@ -1,0 +1,13 @@
+{
+  "info": {
+    "build_version": "3.4.0",
+    "complete_ledgers": "900-1000",
+    "network_id": 1,
+    "server_state": "full",
+    "validated_ledger": {
+      "age": 45,
+      "hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "seq": 1000
+    }
+  }
+}

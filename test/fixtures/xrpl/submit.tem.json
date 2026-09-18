@@ -1,0 +1,12 @@
+{
+  "accepted": false,
+  "applied": false,
+  "broadcast": false,
+  "engine_result": "temBAD_AMOUNT",
+  "engine_result_code": -298,
+  "engine_result_message": "Malformed: Bad amount.",
+  "kept": false,
+  "queued": false,
+  "tx_blob": "",
+  "tx_json": {}
+}

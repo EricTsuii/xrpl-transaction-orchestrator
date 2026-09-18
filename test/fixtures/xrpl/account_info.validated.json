@@ -1,0 +1,22 @@
+{
+  "account_data": {
+    "Account": "rSOURCE",
+    "Balance": "100000000",
+    "Flags": 0,
+    "LedgerEntryType": "AccountRoot",
+    "OwnerCount": 0,
+    "Sequence": 42
+  },
+  "account_flags": {
+    "defaultRipple": false,
+    "depositAuth": false,
+    "disableMasterKey": false,
+    "globalFreeze": false,
+    "noFreeze": false,
+    "requireAuthorization": false,
+    "requireDestinationTag": false
+  },
+  "ledger_hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "ledger_index": 1000,
+  "validated": true
+}

@@ -1,0 +1,43 @@
+{
+  "TRANSACTION_FORMATS": {
+    "Payment": [
+      {
+        "name": "Destination",
+        "optionality": 0
+      },
+      {
+        "name": "Amount",
+        "optionality": 0
+      },
+      {
+        "name": "SendMax",
+        "optionality": 1
+      },
+      {
+        "name": "DestinationTag",
+        "optionality": 1
+      }
+    ],
+    "TrustSet": [
+      {
+        "name": "LimitAmount",
+        "optionality": 1
+      },
+      {
+        "name": "QualityIn",
+        "optionality": 1
+      },
+      {
+        "name": "QualityOut",
+        "optionality": 1
+      }
+    ],
+    "AccountSet": [
+      {
+        "name": "SetFlag",
+        "optionality": 1
+      }
+    ]
+  },
+  "hash": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+}

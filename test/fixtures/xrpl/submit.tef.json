@@ -1,0 +1,12 @@
+{
+  "accepted": false,
+  "applied": false,
+  "broadcast": false,
+  "engine_result": "tefPAST_SEQ",
+  "engine_result_code": -190,
+  "engine_result_message": "This sequence number has already passed.",
+  "kept": false,
+  "queued": false,
+  "tx_blob": "",
+  "tx_json": {}
+}

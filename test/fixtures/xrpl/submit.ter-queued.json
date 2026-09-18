@@ -1,0 +1,12 @@
+{
+  "accepted": true,
+  "applied": false,
+  "broadcast": false,
+  "engine_result": "terQUEUED",
+  "engine_result_code": -89,
+  "engine_result_message": "Held until escalated fee drops.",
+  "kept": true,
+  "queued": true,
+  "tx_blob": "",
+  "tx_json": {}
+}

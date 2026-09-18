@@ -1,0 +1,12 @@
+{
+  "accepted": true,
+  "applied": true,
+  "broadcast": true,
+  "engine_result": "tesSUCCESS",
+  "engine_result_code": 0,
+  "engine_result_message": "The transaction was applied. Only final in a validated ledger.",
+  "kept": true,
+  "queued": false,
+  "tx_blob": "",
+  "tx_json": {}
+}

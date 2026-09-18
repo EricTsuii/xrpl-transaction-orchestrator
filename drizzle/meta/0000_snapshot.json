@@ -1,0 +1,494 @@
+{
+  "id": "7767ae14-35f6-4ac9-a992-791c5ea1ca3e",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.intent_transitions": {
+      "name": "intent_transitions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "intent_id": {
+          "name": "intent_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "from_status": {
+          "name": "from_status",
+          "type": "transaction_intent_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "to_status": {
+          "name": "to_status",
+          "type": "transaction_intent_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason_code": {
+          "name": "reason_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "details": {
+          "name": "details",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "intent_transitions_intent_id_id_idx": {
+          "name": "intent_transitions_intent_id_id_idx",
+          "columns": [
+            {
+              "expression": "intent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "intent_transitions_intent_id_transaction_intents_id_fk": {
+          "name": "intent_transitions_intent_id_transaction_intents_id_fk",
+          "tableFrom": "intent_transitions",
+          "tableTo": "transaction_intents",
+          "columnsFrom": [
+            "intent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.transaction_intents": {
+      "name": "transaction_intents",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "request_hash": {
+          "name": "request_hash",
+          "type": "char(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "network_id": {
+          "name": "network_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "intent_type": {
+          "name": "intent_type",
+          "type": "transaction_intent_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_account": {
+          "name": "source_account",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "transaction_intent_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "intent_payload": {
+          "name": "intent_payload",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prepared_tx_json": {
+          "name": "prepared_tx_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prepared_tx_blob": {
+          "name": "prepared_tx_blob",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prepared_ledger_index": {
+          "name": "prepared_ledger_index",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sequence": {
+          "name": "sequence",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fee_drops": {
+          "name": "fee_drops",
+          "type": "numeric(30, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_ledger_sequence": {
+          "name": "last_ledger_sequence",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "simulation_engine_result": {
+          "name": "simulation_engine_result",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "simulation_result": {
+          "name": "simulation_result",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signed_tx_blob": {
+          "name": "signed_tx_blob",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transaction_hash": {
+          "name": "transaction_hash",
+          "type": "char(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signing_pub_key": {
+          "name": "signing_pub_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "submission_attempt_count": {
+          "name": "submission_attempt_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "submission_validated_ledger": {
+          "name": "submission_validated_ledger",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "submit_engine_result": {
+          "name": "submit_engine_result",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "submit_response": {
+          "name": "submit_response",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_submit_attempt_at": {
+          "name": "last_submit_attempt_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "final_result": {
+          "name": "final_result",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "final_ledger_index": {
+          "name": "final_ledger_index",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "final_ledger_hash": {
+          "name": "final_ledger_hash",
+          "type": "char(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "final_tx_json": {
+          "name": "final_tx_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "final_meta": {
+          "name": "final_meta",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "failure_code": {
+          "name": "failure_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "prepared_at": {
+          "name": "prepared_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "simulated_at": {
+          "name": "simulated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signed_at": {
+          "name": "signed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "finalized_at": {
+          "name": "finalized_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "transaction_intents_sequence_active_account_key": {
+          "name": "transaction_intents_sequence_active_account_key",
+          "columns": [
+            {
+              "expression": "network_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "source_account",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"transaction_intents\".\"status\" IN ('PREPARED', 'SIMULATED', 'AWAITING_SIGNATURE', 'SIGNED', 'SUBMITTED')",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "transaction_intents_transaction_hash_key": {
+          "name": "transaction_intents_transaction_hash_key",
+          "columns": [
+            {
+              "expression": "transaction_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"transaction_intents\".\"transaction_hash\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "transaction_intents_status_idx": {
+          "name": "transaction_intents_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "transaction_intents_created_at_id_idx": {
+          "name": "transaction_intents_created_at_id_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "transaction_intents_idempotency_key_key": {
+          "name": "transaction_intents_idempotency_key_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "idempotency_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "transaction_intents_request_hash_check": {
+          "name": "transaction_intents_request_hash_check",
+          "value": "\"transaction_intents\".\"request_hash\" ~ '^[A-F0-9]{64}$'"
+        },
+        "transaction_intents_transaction_hash_check": {
+          "name": "transaction_intents_transaction_hash_check",
+          "value": "\"transaction_intents\".\"transaction_hash\" IS NULL OR \"transaction_intents\".\"transaction_hash\" ~ '^[A-F0-9]{64}$'"
+        },
+        "transaction_intents_network_id_check": {
+          "name": "transaction_intents_network_id_check",
+          "value": "\"transaction_intents\".\"network_id\" BETWEEN 0 AND 4294967295"
+        },
+        "transaction_intents_sequence_check": {
+          "name": "transaction_intents_sequence_check",
+          "value": "\"transaction_intents\".\"sequence\" IS NULL OR \"transaction_intents\".\"sequence\" >= 0"
+        },
+        "transaction_intents_fee_drops_check": {
+          "name": "transaction_intents_fee_drops_check",
+          "value": "\"transaction_intents\".\"fee_drops\" IS NULL OR \"transaction_intents\".\"fee_drops\" > 0"
+        },
+        "transaction_intents_prepared_ledger_index_check": {
+          "name": "transaction_intents_prepared_ledger_index_check",
+          "value": "\"transaction_intents\".\"prepared_ledger_index\" IS NULL OR \"transaction_intents\".\"prepared_ledger_index\" > 0"
+        },
+        "transaction_intents_last_ledger_sequence_check": {
+          "name": "transaction_intents_last_ledger_sequence_check",
+          "value": "\"transaction_intents\".\"last_ledger_sequence\" IS NULL OR \"transaction_intents\".\"last_ledger_sequence\" > \"transaction_intents\".\"prepared_ledger_index\""
+        },
+        "transaction_intents_submission_attempt_count_check": {
+          "name": "transaction_intents_submission_attempt_count_check",
+          "value": "\"transaction_intents\".\"submission_attempt_count\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.transaction_intent_status": {
+      "name": "transaction_intent_status",
+      "schema": "public",
+      "values": [
+        "CREATED",
+        "PREPARED",
+        "SIMULATED",
+        "AWAITING_SIGNATURE",
+        "SIGNED",
+        "SUBMITTED",
+        "VALIDATED",
+        "REJECTED",
+        "EXPIRED",
+        "FAILED"
+      ]
+    },
+    "public.transaction_intent_type": {
+      "name": "transaction_intent_type",
+      "schema": "public",
+      "values": [
+        "PAYMENT",
+        "TRUST_SET"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

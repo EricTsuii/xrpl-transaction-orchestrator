@@ -1,0 +1,12 @@
+{
+  "accepted": false,
+  "applied": false,
+  "broadcast": false,
+  "engine_result": "telINSUF_FEE_P",
+  "engine_result_code": -394,
+  "engine_result_message": "Fee insufficient.",
+  "kept": true,
+  "queued": false,
+  "tx_blob": "",
+  "tx_json": {}
+}

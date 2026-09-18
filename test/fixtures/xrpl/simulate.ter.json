@@ -1,0 +1,8 @@
+{
+  "applied": false,
+  "engine_result": "terPRE_SEQ",
+  "engine_result_code": -92,
+  "engine_result_message": "Missing/inapplicable prior transaction.",
+  "ledger_index": 1001,
+  "tx_json": {}
+}

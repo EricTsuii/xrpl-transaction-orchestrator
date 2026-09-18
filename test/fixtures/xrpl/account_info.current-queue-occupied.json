@@ -1,0 +1,31 @@
+{
+  "account_data": {
+    "Account": "rSOURCE",
+    "Balance": "100000000",
+    "Flags": 0,
+    "LedgerEntryType": "AccountRoot",
+    "OwnerCount": 0,
+    "Sequence": 42
+  },
+  "account_flags": {
+    "disableMasterKey": false
+  },
+  "ledger_current_index": 1001,
+  "queue_data": {
+    "auth_change_queued": false,
+    "highest_sequence": 42,
+    "lowest_sequence": 42,
+    "max_spend_drops_total": "1000012",
+    "txn_count": 1,
+    "transactions": [
+      {
+        "auth_change": false,
+        "fee": "12",
+        "fee_level": "307",
+        "max_spend_drops": "1000012",
+        "seq": 42
+      }
+    ]
+  },
+  "validated": false
+}

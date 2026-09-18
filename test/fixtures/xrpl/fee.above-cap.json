@@ -1,0 +1,13 @@
+{
+  "current_ledger_size": "310",
+  "current_queue_size": "40",
+  "drops": {
+    "base_fee": "10",
+    "median_fee": "5000",
+    "minimum_fee": "10",
+    "open_ledger_fee": "1001"
+  },
+  "expected_ledger_size": "300",
+  "ledger_current_index": 1001,
+  "max_queue_size": "6000"
+}
