@@ -207,8 +207,8 @@ importers:
         specifier: 10.0.1
         version: 10.0.1(eslint@10.10.0(supports-color@8.1.1))
       '@nestjs/cli':
-        specifier: 12.0.1
-        version: 12.0.1(@types/node@22.20.2)(prettier@3.9.6)
+        specifier: 12.0.2
+        version: 12.0.2(@types/node@22.20.2)(prettier@3.9.6)
       '@nestjs/testing':
         specifier: 12.0.2
         version: 12.0.2(@nestjs/common@12.0.2(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@12.0.2(@nestjs/common@12.0.2(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(reflect-metadata@0.2.2)(rxjs@7.8.2))
@@ -1240,8 +1240,8 @@ packages:
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
     engines: {node: '>=8'}
 
-  '@nestjs/cli@12.0.1':
-    resolution: {integrity: sha512-1qp2CAXMZvib9OUpPkAJhzB0KVVuuxthAuMrD5+/jd0gT3+nqFPfUGH9qHuauZt2rfiXGrtJ+bCBKDBASW4HLA==}
+  '@nestjs/cli@12.0.2':
+    resolution: {integrity: sha512-OKoxTlgT0giBjTQg2hY1mTCgnuDHJ0XMp2yV/IlwsWMg6D5PzHZHNtWQIAA4817J07fC1/DlkxciLprYG9BPhg==}
     engines: {node: '>= 20.11'}
     hasBin: true
     peerDependencies:
@@ -4221,7 +4221,7 @@ snapshots:
 
   '@lukeed/csprng@1.1.0': {}
 
-  '@nestjs/cli@12.0.1(@types/node@22.20.2)(prettier@3.9.6)':
+  '@nestjs/cli@12.0.2(@types/node@22.20.2)(prettier@3.9.6)':
     dependencies:
       '@angular-devkit/core': 22.1.8(chokidar@5.0.0)
       '@angular-devkit/schematics': 22.1.8(chokidar@5.0.0)
