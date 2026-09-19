@@ -5,13 +5,28 @@ updates:
     schedule:
       interval: weekly
     versioning-strategy: increase
+    ignore:
+      # Major versions change the pinned stack and need a new specification.
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    groups:
+      nestjs:
+        patterns: ['@nestjs/*']
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Major versions change the pinned stack and need a new specification.
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Major versions change the pinned stack and need a new specification.
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
