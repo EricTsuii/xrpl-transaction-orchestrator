@@ -157,6 +157,17 @@ Two concurrent prepares for one account can both read the ledger; exactly one wi
 
 All direct dependencies are pinned to exact versions.
 
+## Scope
+
+This release intentionally supports a narrow orchestration flow for two XRPL transaction types:
+
+- `PAYMENT`
+- `TRUST_SET`
+
+The service prepares transactions, simulates them, exposes them for external signing, verifies returned signed blobs, submits signed transactions and tracks them until validated-ledger finality.
+
+The service is not a custody platform, wallet service or general-purpose XRPL transaction gateway.
+
 ## Quick Start
 
 ```bash
