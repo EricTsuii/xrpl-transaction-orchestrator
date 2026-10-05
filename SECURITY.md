@@ -103,3 +103,21 @@ The workflow runs with `contents: read`, uses only `actions/checkout` and `actio
 ## Vulnerability Reporting
 
 Please report vulnerabilities privately through GitHub's **Report a vulnerability** option on this repository rather than in a public issue. Include the affected component and steps to reproduce.
+
+## External signing boundary
+
+The production service never receives or stores private signing material.
+
+Seeds, private keys, mnemonic phrases and secret numbers must remain outside the production API boundary.
+
+1. The signing flow is intentionally external:
+2. The backend prepares and simulates the transaction.
+3. The unsigned transaction is provided to an external signer.
+4. The signer returns a signed transaction blob.
+5. The backend decodes the signed transaction.
+6. Signature fields are separated from the transaction body.
+7. The transaction body must exactly match the transaction originally prepared by the backend.
+8. The signature and signer authorization are verified.
+9. Only the exact verified signed blob may be persisted and submitted.
+
+The backend must never submit a transaction that differs from the transaction it prepared and simulated.
