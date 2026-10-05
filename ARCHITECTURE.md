@@ -173,3 +173,30 @@ NestJS 12 and the noble/scure cryptography libraries that `xrpl.js` 5 depends on
 ## Non-Goals
 
 Custody, seed storage, HSM, KMS or Vault; multisign and SignerList orchestration; tickets; sponsor and delegate; `AccountTxnID`; batch; memos, `SourceTag`, `InvoiceID`; paths, `SendMax`, `DeliverMin`, partial payments and cross-currency pathfinding; TrustSet flags and qualities; NFT, AMM, DEX, lending, escrow and payment-channel transactions; a raw transaction API; Redis, Kafka, RabbitMQ or NATS; MinIO or S3; GraphQL or gRPC; authentication, authorization and multi-tenancy; Kubernetes, Terraform and cloud deployment.
+
+## Validated-ledger finality
+
+A successful submit response is provisional and is not treated as the final transaction outcome.The orchestrator considers a transaction final only after it is found in a validated XRPL ledger.A transaction therefore follows two separate stages:
+
+```
+signed transaction
+        ↓
+      submit
+        ↓
+ provisional result
+        ↓
+ finality tracking
+        ↓
+validated ledger result
+```
+
+A validated transaction may still represent an unsuccessful XRPL result.
+
+For example:
+
+* `tes*` → validated and succeeded
+* `tec*` → validated but not succeeded
+
+The orchestration status `VALIDATED` means that the ledger outcome is immutable. It does not mean that the transaction necessarily succeeded.
+
+A `txnNotFound` response alone is never treated as proof that a transaction expired. Expiry may only be concluded when the requested ledger range has been fully searched.
