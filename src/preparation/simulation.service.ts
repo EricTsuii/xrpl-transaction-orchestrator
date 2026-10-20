@@ -51,21 +51,30 @@ export function simulationMatchesPrepared(
   simulated: Record<string, unknown> | undefined,
 ): boolean {
   if (simulated === undefined) {
-    return true;
+    return false;
   }
   try {
-    return encodeCompared(toCanonicalForm(prepared)) === encodeCompared(toCanonicalForm(simulated));
+    return (
+  encodeComparableTransaction(toCanonicalForm(prepared)) ===
+  encodeComparableTransaction(toCanonicalForm(simulated))
+);
   } catch {
     return false;
   }
 }
 
-function encodeCompared(transaction: Record<string, unknown>): string {
-  const subset: Record<string, unknown> = {};
-  for (const field of COMPARED_FIELDS) {
-    if (field in transaction) {
-      subset[field] = transaction[field];
-    }
+function encodeComparableTransaction(
+  transaction: Record<string, unknown>,
+): string {
+  const {
+    SigningPubKey: _signingPubKey,
+    TxnSignature: _txnSignature,
+    hash: _hash,
+    ...comparable
+  } = transaction;
+
+  return encode(comparable as unknown as Transaction);
+}
   }
   return encode(subset as unknown as Transaction);
 }
