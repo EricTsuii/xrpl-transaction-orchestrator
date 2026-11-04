@@ -5,25 +5,6 @@ import { PreparedTransaction, toCanonicalForm } from '../xrpl/codec';
 import { LedgerService } from '../xrpl/ledger.service';
 import type { SimulationResult } from '../xrpl/types';
 
-/**
- * Fields a simulation response must echo unchanged. DeliverMax appears as
- * Amount in the canonical form; SigningPubKey, TxnSignature and hash are
- * auto-filled by the server and ignored.
- */
-const COMPARED_FIELDS = [
-  'TransactionType',
-  'Account',
-  'Destination',
-  'Amount',
-  'DestinationTag',
-  'LimitAmount',
-  'Flags',
-  'Fee',
-  'Sequence',
-  'LastLedgerSequence',
-  'NetworkID',
-] as const;
-
 @Injectable()
 export class SimulationService {
   constructor(private readonly ledger: LedgerService) {}
@@ -55,17 +36,15 @@ export function simulationMatchesPrepared(
   }
   try {
     return (
-  encodeComparableTransaction(toCanonicalForm(prepared)) ===
-  encodeComparableTransaction(toCanonicalForm(simulated))
-);
+      encodeComparableTransaction(toCanonicalForm(prepared)) ===
+      encodeComparableTransaction(toCanonicalForm(simulated))
+    );
   } catch {
     return false;
   }
 }
 
-function encodeComparableTransaction(
-  transaction: Record<string, unknown>,
-): string {
+function encodeComparableTransaction(transaction: Record<string, unknown>): string {
   const {
     SigningPubKey: _signingPubKey,
     TxnSignature: _txnSignature,
@@ -74,7 +53,4 @@ function encodeComparableTransaction(
   } = transaction;
 
   return encode(comparable as unknown as Transaction);
-}
-  }
-  return encode(subset as unknown as Transaction);
 }
