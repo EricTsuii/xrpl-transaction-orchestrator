@@ -58,28 +58,23 @@ describe('simulation integrity', () => {
   });
 
   it('rejects a response without tx_json', () => {
-  expect(simulationMatchesPrepared(payment, undefined)).toBe(false);
-});
+    expect(simulationMatchesPrepared(payment, undefined)).toBe(false);
+  });
 
   it('rejects an unexpected transaction field', () => {
-  expect(
-    simulationMatchesPrepared(
-      payment,
-      echoed(payment, { SourceTag: 123 }),
-    ),
-  ).toBe(false);
-});
+    expect(simulationMatchesPrepared(payment, echoed(payment, { SourceTag: 123 }))).toBe(false);
+  });
 
-it('ignores server-added signature and hash fields', () => {
-  expect(
-    simulationMatchesPrepared(payment, {
-      ...toCanonicalForm(payment),
-      SigningPubKey: 'ABCD',
-      TxnSignature: 'DEADBEEF',
-      hash: 'C'.repeat(64),
-    }),
-  ).toBe(true);
-});
+  it('ignores server-added signature and hash fields', () => {
+    expect(
+      simulationMatchesPrepared(payment, {
+        ...toCanonicalForm(payment),
+        SigningPubKey: 'ABCD',
+        TxnSignature: 'DEADBEEF',
+        hash: 'C'.repeat(64),
+      }),
+    ).toBe(true);
+  });
 
   it.each([
     ['Destination', { Destination: ISSUER }],
