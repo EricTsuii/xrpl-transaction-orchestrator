@@ -1,5 +1,5 @@
 import { hashes } from 'xrpl';
-import { FakeLedgerNetwork } from '../fakes/fake-ledger-client';
+import { FakeLedgerNetwork, ok } from '../fakes/fake-ledger-client';
 import {
   attachSignature,
   createIntent,
@@ -304,6 +304,38 @@ describe('expiry', () => {
     expect(response.body.error.code).toBe('INVALID_INTENT_STATE');
     expect((await detail(t, id)).status).toBe('EXPIRED');
     expect(t.network.ledger.submittedBlobs).toHaveLength(0);
+  });
+});
+
+describe('finality health', () => {
+  it('reports a cycle that cannot read the validated ledger as degraded', async () => {
+    await t.finality.runCycle();
+    const healthy = t.finality.status();
+    expect(healthy.status).toBe('HEALTHY');
+    expect(healthy.lastSuccessfulCycleAt).not.toBeNull();
+
+    const unvalidated = ok({
+      ledger_index: t.network.ledger.validatedLedger,
+      ledger_hash: 'B'.repeat(64),
+      validated: false,
+    });
+    t.network.primary.override('ledger', unvalidated);
+    t.network.secondary.override('ledger', unvalidated);
+    await t.finality.runCycle();
+
+    expect(t.finality.status()).toStrictEqual({
+      status: 'DEGRADED',
+      lastSuccessfulCycleAt: healthy.lastSuccessfulCycleAt,
+    });
+    const ready = await t.http().get('/readyz').expect(503);
+    expect(ready.body).toMatchObject({ status: 'not_ready', checks: { finality: 'degraded' } });
+
+    t.network.primary.clearOverride('ledger');
+    t.network.secondary.clearOverride('ledger');
+    await t.finality.runCycle();
+
+    expect(t.finality.status().status).toBe('HEALTHY');
+    await t.http().get('/readyz').expect(200);
   });
 });
 

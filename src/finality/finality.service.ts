@@ -134,6 +134,7 @@ export class FinalityService {
         this.logger.log(`startup recovery completed: ${rows.length} active intent(s) reconciled`);
       }
     } catch (error) {
+      this.health = 'DEGRADED';
       const message = error instanceof Error ? error.message : 'unknown error';
       this.logger.warn(`finality cycle did not complete: ${message}`);
     }
