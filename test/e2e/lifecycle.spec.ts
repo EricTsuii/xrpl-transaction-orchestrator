@@ -462,3 +462,41 @@ describe('intent API', () => {
     });
   });
 });
+
+describe('readiness', () => {
+  it('is ready when finality is healthy and startup recovery has completed', async () => {
+    expect(t.finality.status().status).toBe('HEALTHY');
+    expect(t.finality.isRecovered()).toBe(true);
+
+    const ready = await t.http().get('/readyz').expect(200);
+    expect(ready.body).toMatchObject({
+      status: 'ready',
+      checks: { finality: 'healthy', startupRecovery: 'completed' },
+    });
+  });
+
+  it.each([
+    { status: 'STARTING', recovered: true, finality: 'starting', startupRecovery: 'completed' },
+    { status: 'DEGRADED', recovered: true, finality: 'degraded', startupRecovery: 'completed' },
+    { status: 'HEALTHY', recovered: false, finality: 'healthy', startupRecovery: 'pending' },
+  ] as const)(
+    'is not ready when finality is $status and recovery completed is $recovered',
+    async ({ status, recovered, finality, startupRecovery }) => {
+      jest.spyOn(t.finality, 'status').mockReturnValue({ status, lastSuccessfulCycleAt: null });
+      jest.spyOn(t.finality, 'isRecovered').mockReturnValue(recovered);
+
+      const ready = await t.http().get('/readyz').expect(503);
+      expect(ready.body).toStrictEqual({
+        status: 'not_ready',
+        checks: {
+          database: 'up',
+          xrpl: 'up',
+          definitions: 'up',
+          ledgerSubscription: 'up',
+          finality,
+          startupRecovery,
+        },
+      });
+    },
+  );
+});

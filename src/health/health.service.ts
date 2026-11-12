@@ -62,7 +62,7 @@ export class HealthService {
       xrpl.networkId !== null &&
       xrpl.definitionsCompatible &&
       xrpl.ledgerSubscription &&
-      finality !== 'DEGRADED' &&
+      finality === 'HEALTHY' &&
       recovered;
     return { ready, checks };
   }
