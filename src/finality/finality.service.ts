@@ -116,22 +116,34 @@ export class FinalityService {
       const currentLedger = await this.ledger.validatedLedgerIndex();
       const rows = await this.intents.findByStatuses(SEQUENCE_ACTIVE_STATUSES);
       let degraded = false;
+      let rowErrors = false;
       const switchBudget = { remaining: 1 };
 
       for (const row of rows) {
-        if (UNSIGNED_ACTIVE_STATUSES.includes(row.status)) {
-          await this.expireUnsigned(row, currentLedger);
-        } else if (SIGNED_ACTIVE_STATUSES.includes(row.status)) {
-          const outcome = await this.resolveSigned(row, currentLedger, switchBudget);
-          degraded ||= outcome === 'UNPROVABLE';
+        try {
+          if (UNSIGNED_ACTIVE_STATUSES.includes(row.status)) {
+            await this.expireUnsigned(row, currentLedger);
+          } else if (SIGNED_ACTIVE_STATUSES.includes(row.status)) {
+            const outcome = await this.resolveSigned(row, currentLedger, switchBudget);
+            degraded ||= outcome === 'UNPROVABLE';
+          }
+        } catch (error) {
+          rowErrors = true;
+          degraded = true;
+          const message = error instanceof Error ? error.message : 'unknown error';
+          this.logger.warn(`intent ${row.id}: finality reconciliation failed: ${message}`);
         }
       }
 
       this.health = degraded ? 'DEGRADED' : 'HEALTHY';
-      this.lastSuccessfulCycleAt = new Date();
-      if (!this.recovered) {
-        this.recovered = true;
-        this.logger.log(`startup recovery completed: ${rows.length} active intent(s) reconciled`);
+
+      if (!rowErrors) {
+        this.lastSuccessfulCycleAt = new Date();
+
+        if (!this.recovered) {
+          this.recovered = true;
+          this.logger.log(`startup recovery completed: ${rows.length} active intent(s) reconciled`);
+        }
       }
     } catch (error) {
       this.health = 'DEGRADED';

@@ -1,5 +1,5 @@
 import { hashes } from 'xrpl';
-import { FakeLedgerNetwork, ok } from '../fakes/fake-ledger-client';
+import { FakeLedgerNetwork, ok, serverError } from '../fakes/fake-ledger-client';
 import {
   attachSignature,
   createIntent,
@@ -335,6 +335,87 @@ describe('finality health', () => {
     await t.finality.runCycle();
 
     expect(t.finality.status().status).toBe('HEALTHY');
+    await t.http().get('/readyz').expect(200);
+  });
+});
+
+describe('per-intent reconciliation failures', () => {
+  function failTxLookups(network: FakeLedgerNetwork): void {
+    const busy = serverError({ error: 'tooBusy' });
+    network.primary.override('tx', busy);
+    network.secondary.override('tx', busy);
+  }
+
+  function restoreTxLookups(network: FakeLedgerNetwork): void {
+    network.primary.clearOverride('tx');
+    network.secondary.clearOverride('tx');
+  }
+
+  /** An unsigned intent created after any intent the test already has. */
+  async function unsignedIntent(): Promise<string> {
+    const wallet = fundedAccount(t);
+    const id = await createIntent(t, paymentBody(wallet.classicAddress));
+    await prepareIntent(t, id);
+    return id;
+  }
+
+  it('reconciles the remaining intents when one of them fails', async () => {
+    const signed = await signedIntent();
+    const unsigned = await unsignedIntent();
+    await t.finality.runCycle();
+    const healthy = t.finality.status();
+    expect(healthy.status).toBe('HEALTHY');
+
+    failTxLookups(t.network);
+    passLastLedgerSequence();
+    await t.finality.runCycle();
+
+    expect((await detail(t, signed.id)).status).toBe('SIGNED');
+    expect((await detail(t, unsigned)).status).toBe('EXPIRED');
+    expect(t.finality.status()).toStrictEqual({
+      status: 'DEGRADED',
+      lastSuccessfulCycleAt: healthy.lastSuccessfulCycleAt,
+    });
+    await t.http().get('/readyz').expect(503);
+
+    restoreTxLookups(t.network);
+    await t.finality.runCycle();
+
+    expect((await detail(t, signed.id)).status).toBe('EXPIRED');
+    const recovered = t.finality.status();
+    expect(recovered.status).toBe('HEALTHY');
+    expect(recovered.lastSuccessfulCycleAt).not.toBe(healthy.lastSuccessfulCycleAt);
+    await t.http().get('/readyz').expect(200);
+  });
+
+  it('does not complete startup recovery while an intent is unreconciled', async () => {
+    const network = new FakeLedgerNetwork();
+    await t.close();
+    t = await startTestApp(network);
+    const signed = await signedIntent();
+    const unsigned = await unsignedIntent();
+    await t.close();
+
+    network.ledger.validatedLedger = 1021;
+    failTxLookups(network);
+    t = await startTestApp(network, { truncate: false });
+
+    expect(t.finality.isRecovered()).toBe(false);
+    expect(t.finality.status()).toStrictEqual({ status: 'DEGRADED', lastSuccessfulCycleAt: null });
+    expect((await detail(t, signed.id)).status).toBe('SIGNED');
+    expect((await detail(t, unsigned)).status).toBe('EXPIRED');
+    const ready = await t.http().get('/readyz').expect(503);
+    expect(ready.body).toMatchObject({
+      status: 'not_ready',
+      checks: { finality: 'degraded', startupRecovery: 'pending' },
+    });
+
+    restoreTxLookups(network);
+    await t.finality.runCycle();
+
+    expect(t.finality.isRecovered()).toBe(true);
+    expect(t.finality.status().status).toBe('HEALTHY');
+    expect((await detail(t, signed.id)).status).toBe('EXPIRED');
     await t.http().get('/readyz').expect(200);
   });
 });
