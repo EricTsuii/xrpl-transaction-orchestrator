@@ -234,6 +234,80 @@ describe('failover', () => {
   });
 });
 
+describe('live connection state', () => {
+  it('reports a closed client as not ready and fails over on the next request', async () => {
+    const network = new FakeLedgerNetwork();
+    const connection = track(manager(network));
+    await connection.ensureConnected();
+    expect(connection.isReady()).toBe(true);
+    expect(connection.status()).toMatchObject({ connected: true, endpoint: 'primary' });
+
+    await network.primary.clients[0]?.disconnect();
+
+    expect(connection.isReady()).toBe(false);
+    expect(connection.status()).toStrictEqual({
+      connected: false,
+      endpoint: null,
+      networkId: null,
+      buildVersion: null,
+      validatedLedger: null,
+      definitionsCompatible: false,
+      ledgerSubscription: false,
+    });
+
+    const response = await connection.request({ command: 'fee', api_version: 2 });
+
+    expect(response.ok).toBe(true);
+    expect(connection.activeEndpoint()).toBe('secondary');
+    expect(network.secondary.commands()).toEqual([
+      'server_info',
+      'server_definitions',
+      'subscribe',
+      'fee',
+    ]);
+    expect(connection.isReady()).toBe(true);
+    expect(connection.status()).toMatchObject({ connected: true, endpoint: 'secondary' });
+    expect(network.maxConnectedAtOnce).toBe(1);
+  });
+
+  it('shares one failover between concurrent requests on a closed client', async () => {
+    const network = new FakeLedgerNetwork();
+    const connection = track(manager(network));
+    await connection.ensureConnected();
+    await network.primary.clients[0]?.disconnect();
+
+    const responses = await Promise.all(
+      Array.from({ length: 5 }, () => connection.request({ command: 'fee', api_version: 2 })),
+    );
+
+    expect(responses.every((response) => response.ok)).toBe(true);
+    expect(network.primary.clients).toHaveLength(1);
+    expect(network.secondary.clients).toHaveLength(1);
+    expect(network.maxConnectedAtOnce).toBe(1);
+    expect(network.connectedNow).toBe(1);
+  });
+
+  it('stays not ready after a dropped connection until the other endpoint connects', async () => {
+    const network = new FakeLedgerNetwork();
+    const connection = track(manager(network));
+    await connection.ensureConnected();
+    network.secondary.failConnect = true;
+
+    network.primary.clients[0]?.dropConnection();
+
+    expect(await unavailable(connection.ensureConnected())).toBe('XRPL_UNAVAILABLE');
+    expect(connection.isReady()).toBe(false);
+    expect(connection.status().connected).toBe(false);
+
+    network.secondary.failConnect = false;
+    await connection.ensureConnected();
+
+    expect(connection.isReady()).toBe(true);
+    expect(connection.status()).toMatchObject({ connected: true, endpoint: 'secondary' });
+    expect(network.maxConnectedAtOnce).toBe(1);
+  });
+});
+
 describe('ledger stream', () => {
   it('tracks the latest validated ledger and notifies listeners', async () => {
     const network = new FakeLedgerNetwork();

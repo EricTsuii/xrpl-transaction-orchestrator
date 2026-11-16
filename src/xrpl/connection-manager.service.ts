@@ -82,19 +82,21 @@ export class ConnectionManagerService implements OnApplicationShutdown {
 
   status(): ConnectionStatus {
     const active = this.active;
+    const connected = active?.client.isConnected() === true;
+
     return {
-      connected: active !== undefined,
-      endpoint: active?.name ?? null,
-      networkId: active?.networkId ?? null,
-      buildVersion: active?.buildVersion ?? null,
-      validatedLedger: active === undefined ? null : (this.latestValidatedLedger ?? null),
-      definitionsCompatible: active !== undefined,
-      ledgerSubscription: active !== undefined,
+      connected,
+      endpoint: connected ? active.name : null,
+      networkId: connected ? active.networkId : null,
+      buildVersion: connected ? active.buildVersion : null,
+      validatedLedger: connected ? (this.latestValidatedLedger ?? null) : null,
+      definitionsCompatible: connected,
+      ledgerSubscription: connected,
     };
   }
 
   isReady(): boolean {
-    return this.active !== undefined;
+    return this.status().connected;
   }
 
   activeEndpoint(): EndpointName | undefined {
@@ -164,12 +166,16 @@ export class ConnectionManagerService implements OnApplicationShutdown {
   }
 
   private connection(): Promise<ActiveEndpoint> {
-    if (this.active !== undefined) {
-      return Promise.resolve(this.active);
-    }
     if (this.switching !== undefined) {
       return this.switching;
     }
+
+    if (this.active !== undefined) {
+      return this.active.client.isConnected()
+        ? Promise.resolve(this.active)
+        : this.failover(this.active.client, 'client disconnected');
+    }
+
     return this.track(this.connectInOrder([this.preferred, otherEndpoint(this.preferred)]));
   }
 
