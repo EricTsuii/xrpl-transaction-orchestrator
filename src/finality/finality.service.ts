@@ -252,10 +252,17 @@ export class FinalityService {
   ): Promise<SignedOutcome> {
     const preparedSequence = required(row.sequence, 'sequence');
     const account = await this.ledger.validatedAccountInfo(row.sourceAccount);
-    if (account !== undefined && (account.ledgerIndex ?? 0) <= lastLedgerSequence) {
+
+    if (account === undefined || account.ledgerIndex === undefined) {
+      this.logger.warn(`intent ${row.id}: cannot prove account sequence after expiry`);
+      return 'UNPROVABLE';
+    }
+
+    if (account.ledgerIndex <= lastLedgerSequence) {
       return 'PENDING';
     }
-    const currentSequence = account?.sequence;
+
+    const currentSequence = account.sequence;
 
     if (currentSequence === preparedSequence) {
       await this.intents.transition(row.id, {
@@ -267,10 +274,10 @@ export class FinalityService {
       this.logger.log(`intent ${row.id} expired: not included by LastLedgerSequence`);
       return 'EXPIRED';
     }
-    if (currentSequence === undefined || currentSequence > preparedSequence) {
+    if (currentSequence > preparedSequence) {
       return this.fail(row, 'SEQUENCE_CONFLICT', {
         preparedSequence,
-        accountSequence: currentSequence ?? null,
+        accountSequence: currentSequence,
       });
     }
     return this.fail(row, 'SEQUENCE_REGRESSION', {

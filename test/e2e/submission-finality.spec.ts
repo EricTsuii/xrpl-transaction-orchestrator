@@ -1,5 +1,5 @@
 import { hashes } from 'xrpl';
-import { FakeLedgerNetwork, ok, serverError } from '../fakes/fake-ledger-client';
+import { FakeLedgerNetwork, fixture, ok, serverError } from '../fakes/fake-ledger-client';
 import {
   attachSignature,
   createIntent,
@@ -295,6 +295,48 @@ describe('expiry', () => {
       status: 'FAILED',
       failureCode: 'SEQUENCE_REGRESSION',
     });
+  });
+
+  it('does not infer a Sequence conflict when the source account is missing', async () => {
+    const { id, wallet } = await signedIntent();
+    await submit(id);
+    t.network.ledger.accounts.delete(wallet.classicAddress);
+    passLastLedgerSequence();
+    await t.finality.runCycle();
+
+    expect((await detail(t, id)).status).toBe('SUBMITTED');
+    expect(t.finality.status().status).toBe('DEGRADED');
+    await t.http().get('/readyz').expect(503);
+
+    t.network.ledger.accounts.set(wallet.classicAddress, { sequence: 42 });
+    await t.finality.runCycle();
+    expect((await detail(t, id)).status).toBe('EXPIRED');
+    expect(t.finality.status().status).toBe('HEALTHY');
+  });
+
+  it('does not trust account state without a validated ledger index', async () => {
+    const { id, wallet } = await signedIntent();
+    await submit(id);
+    const body = fixture('account_info.validated');
+    body.account_data = {
+      ...(body.account_data as Record<string, unknown>),
+      Account: wallet.classicAddress,
+      Sequence: 43,
+    };
+    delete body.ledger_index;
+    t.network.primary.override('account_info', ok(body));
+    t.network.secondary.override('account_info', ok(body));
+    passLastLedgerSequence();
+    await t.finality.runCycle();
+
+    expect((await detail(t, id)).status).toBe('SUBMITTED');
+    expect(t.finality.status().status).toBe('DEGRADED');
+
+    t.network.primary.clearOverride('account_info');
+    t.network.secondary.clearOverride('account_info');
+    await t.finality.runCycle();
+    expect((await detail(t, id)).status).toBe('EXPIRED');
+    expect(t.finality.status().status).toBe('HEALTHY');
   });
 
   it('settles the outcome instead of submitting after LastLedgerSequence', async () => {
