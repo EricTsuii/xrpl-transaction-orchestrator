@@ -101,12 +101,12 @@ export function parseAccountInfo(result: Record<string, unknown>): AccountInfo {
   const accountData = record(result.account_data, 'account_info.account_data');
   const accountFlags = asRecord(result.account_flags);
   const queueData = asRecord(result.queue_data);
+  const flags = uint(accountData.Flags, 'account_data.Flags');
 
   let disableMasterKey: boolean;
   if (accountFlags !== undefined && typeof accountFlags.disableMasterKey === 'boolean') {
     disableMasterKey = accountFlags.disableMasterKey;
   } else {
-    const flags = uint(accountData.Flags ?? 0, 'account_data.Flags');
     disableMasterKey = (flags & LSF_DISABLE_MASTER) !== 0;
   }
 
