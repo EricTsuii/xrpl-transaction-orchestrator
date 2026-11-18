@@ -119,7 +119,7 @@ export function parseAccountInfo(result: Record<string, unknown>): AccountInfo {
     regularKey: optionalStr(accountData.RegularKey),
     disableMasterKey,
     queuedTransactionCount:
-      queueData === undefined ? 0 : uint(queueData.txn_count ?? 0, 'queue_data.txn_count'),
+      queueData === undefined ? 0 : uint(queueData.txn_count, 'queue_data.txn_count'),
   };
 }
 
