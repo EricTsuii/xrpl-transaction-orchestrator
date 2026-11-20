@@ -145,4 +145,18 @@ describe('list cursor', () => {
       expect(() => decodeCursor(value)).toThrow('cursor is not valid');
     },
   );
+
+  it('rejects oversized cursors', () => {
+    expect(() => decodeCursor('A'.repeat(257))).toThrow('cursor is not valid');
+  });
+
+  it('rejects non-canonical base64url input', () => {
+    const cursor = encodeCursor({
+      createdAt: new Date('2026-09-15T12:00:00.123Z'),
+      id: '6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b',
+    });
+
+    expect(() => decodeCursor(`${cursor}=`)).toThrow('cursor is not valid');
+    expect(() => decodeCursor(`${cursor}!`)).toThrow('cursor is not valid');
+  });
 });

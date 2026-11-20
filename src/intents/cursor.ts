@@ -3,6 +3,8 @@ import { ApiError } from '../common/errors/api-error';
 // Keyset cursor for GET /v1/intents: base64url of {"c": createdAt, "i": id}.
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const MAX_CURSOR_LENGTH = 256;
+const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 export interface IntentCursor {
   createdAt: Date;
@@ -15,9 +17,20 @@ export function encodeCursor(cursor: IntentCursor): string {
 }
 
 export function decodeCursor(value: string): IntentCursor {
+  if (value.length > MAX_CURSOR_LENGTH || !BASE64URL_PATTERN.test(value)) {
+    throw invalidCursor();
+  }
+
   let parsed: unknown;
+
   try {
-    parsed = JSON.parse(Buffer.from(value, 'base64url').toString('utf8'));
+    const bytes = Buffer.from(value, 'base64url');
+
+    if (bytes.toString('base64url') !== value) {
+      throw invalidCursor();
+    }
+
+    parsed = JSON.parse(bytes.toString('utf8'));
   } catch {
     throw invalidCursor();
   }
