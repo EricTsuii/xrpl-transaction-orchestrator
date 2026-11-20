@@ -4,7 +4,7 @@ import {
   IsDefined,
   IsIn,
   IsInt,
-  IsOptional,
+  ValidateIf,
   IsString,
   Matches,
   Max,
@@ -72,7 +72,7 @@ export class PaymentIntentDto {
   })
   amount!: XrpAmountDto | IssuedAmountDto;
 
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsInt()
   @Min(0)
   @Max(UINT32_MAX)

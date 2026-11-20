@@ -139,9 +139,10 @@ describe('intent validation', () => {
   });
 
   it('enforces DestinationTag bounds', async () => {
+    await expect(pipe.transform(xrpPayment())).resolves.toBeDefined();
     await expect(pipe.transform(xrpPayment({ destinationTag: 0 }))).resolves.toBeDefined();
     await expect(pipe.transform(xrpPayment({ destinationTag: 4294967295 }))).resolves.toBeDefined();
-    for (const destinationTag of [-1, 4294967296, 1.5, '123']) {
+    for (const destinationTag of [null, -1, 4294967296, 1.5, '123']) {
       expect((await rejection(xrpPayment({ destinationTag }))).code).toBe('VALIDATION_ERROR');
     }
   });
