@@ -1,3 +1,5 @@
+import { UINT32_MAX } from '../common/constants';
+
 // Narrowing of XRPL API v2 responses. Everything from the network arrives as
 // `unknown` and is checked field by field before the service relies on it.
 
@@ -27,6 +29,12 @@ function uint(value: unknown, what: string): number {
   return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
     ? value
     : fail(`${what} is not a non-negative integer`);
+}
+
+function uint32(value: unknown, what: string): number {
+  const parsed = uint(value, what);
+
+  return parsed <= UINT32_MAX ? parsed : fail(`${what} exceeds UInt32`);
 }
 
 function optionalUint(value: unknown, what: string): number | undefined {
@@ -115,7 +123,7 @@ export function parseAccountInfo(result: Record<string, unknown>): AccountInfo {
     ledgerIndex:
       optionalUint(result.ledger_index, 'account_info.ledger_index') ??
       optionalUint(result.ledger_current_index, 'account_info.ledger_current_index'),
-    sequence: uint(accountData.Sequence, 'account_data.Sequence'),
+    sequence: uint32(accountData.Sequence, 'account_data.Sequence'),
     regularKey: optionalStr(accountData.RegularKey),
     disableMasterKey,
     queuedTransactionCount:

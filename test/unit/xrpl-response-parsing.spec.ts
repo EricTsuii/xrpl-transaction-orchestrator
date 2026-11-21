@@ -112,6 +112,78 @@ describe('account_info Flags', () => {
   });
 });
 
+describe('account_info Sequence', () => {
+  it.each([42, 4294967295])('reads Sequence %p', (sequence) => {
+    expect(parseAccountInfo(accountInfoResult({ Flags: 0, Sequence: sequence })).sequence).toBe(
+      sequence,
+    );
+  });
+
+  it('rejects a Sequence above UInt32', () => {
+    expect(() => parseAccountInfo(accountInfoResult({ Flags: 0, Sequence: 4294967296 }))).toThrow(
+      LedgerResponseFormatError,
+    );
+    expect(() => parseAccountInfo(accountInfoResult({ Flags: 0, Sequence: 4294967296 }))).toThrow(
+      'account_data.Sequence exceeds UInt32',
+    );
+  });
+
+  it.each([
+    ['a negative number', -1],
+    ['a fraction', 1.5],
+    ['a string', '42'],
+    ['missing', undefined],
+  ])('rejects a Sequence that is %s', (_name, sequence) => {
+    expect(() => parseAccountInfo(accountInfoResult({ Flags: 0, Sequence: sequence }))).toThrow(
+      'account_data.Sequence is not a non-negative integer',
+    );
+  });
+
+  it.each([
+    ['above UInt32', 4294967296, 'account_data.Sequence exceeds UInt32'],
+    ['negative', -1, 'account_data.Sequence is not a non-negative integer'],
+  ])(
+    'fails preparation before building a transaction when Sequence is %s',
+    async (_name, sequence, message) => {
+      const connection = {
+        request: () =>
+          Promise.resolve({
+            ok: true,
+            result: accountInfoResult({ Flags: 0, Sequence: sequence }),
+          }),
+      };
+      const row = {
+        id: 'intent-1',
+        status: 'CREATED',
+        intentPayload: {
+          type: 'PAYMENT',
+          account: master.classicAddress,
+          destination: regular.classicAddress,
+          amount: { type: 'XRP', drops: '1000' },
+          destinationTag: null,
+        },
+      };
+      const transition = jest.fn();
+      const cappedOpenLedgerFee = jest.fn();
+      const service = new PreparationService(
+        { findById: () => Promise.resolve(row), transition } as never,
+        new LedgerService(connection as unknown as ConnectionManagerService),
+        { cappedOpenLedgerFee } as never,
+        {} as never,
+        { assertRecovered: () => undefined } as never,
+        {} as never,
+      );
+
+      await expect(service.prepare('intent-1')).rejects.toMatchObject({
+        code: 'XRPL_UNAVAILABLE',
+        message: `Unexpected XRPL response: ${message}.`,
+      });
+      expect(cappedOpenLedgerFee).not.toHaveBeenCalled();
+      expect(transition).not.toHaveBeenCalled();
+    },
+  );
+});
+
 describe('signer authorization from parsed account_info', () => {
   function authorize(signer: Wallet, result: Record<string, unknown>): string {
     const account = parseAccountInfo(result);
